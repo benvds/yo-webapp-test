@@ -46,11 +46,12 @@ module.exports = function (grunt) {
                     livereload: LIVERELOAD_PORT
                 },
                 files: [
-                    '<%= yeoman.app %>/*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-                ]
+                    '<%= yeoman.src %>/templates/{,*/}*.hbs',
+                    '{.tmp,<%= yeoman.src %>}/css/{,*/}*.css',
+                    '{.tmp,<%= yeoman.src %>}/js/{,*/}*.js',
+                    '<%= yeoman.src %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                ],
+                tasks: ['assemble']
             }
         },
         connect: {
@@ -341,8 +342,27 @@ module.exports = function (grunt) {
             all: {
                 rjsConfig: '<%= yeoman.app %>/scripts/main.js'
             }
+        },
+        assemble: {
+            options: {
+                flatten: true,
+                layout: '<%= yeoman.app %>/templates/layouts/default.hbs',
+                partials: ['<%= yeoman.app %>/templates/partials/*.hbs']
+            },
+            pages: {
+                files: {
+                    '<%= yeoman.app %>/': ['<%= yeoman.app %>/templates/pages/*.hbs', '!<%= yeoman.app %>/templates/pages/index.hbs']
+                }
+            },
+            index: {
+                files: {
+                    '<%= yeoman.app %>/': ['<%= yeoman.app %>/templates/pages/index.hbs']
+                }
+            }
         }
     });
+
+    grunt.loadNpmTasks('assemble');
 
     grunt.registerTask('server', function (target) {
         if (target === 'dist') {
@@ -369,6 +389,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
+        'assemble',
         'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
